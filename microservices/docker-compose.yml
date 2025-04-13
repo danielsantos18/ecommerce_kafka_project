@@ -1,4 +1,5 @@
 services:
+  #=====================================BDS POSTGRES============================================
   #BD PARA USERS POSTGRES
   db-users:
     container_name: db-users
@@ -8,7 +9,7 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_user_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     expose:
@@ -24,13 +25,14 @@ services:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_product_data:/var/lib/postgresql/data
     ports:
-      - 5433:5433
+      - 5433:5432
     expose:
-      - 5433
-    command: -p 5433
+      - 5432
+    command: -p 5432
 
+  #=============================================BDS MONGO============================================
   #BD PARA TRAZABILIDAD DE EVENTOS MONGO
   mongo-event:
     image: mongo:6
@@ -83,6 +85,21 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
 
+  #======================================INTERFAZ BD======================================================
+  # PGADMIN
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db-users
+      - db-products
+
   # Mongo Express (Interfaz web)
   mongo-express:
     image: mongo-express
@@ -99,7 +116,19 @@ services:
     depends_on:
       - mongo-event
 
-  #===================================================================================================
+  #KafDrop (Interfaz Web)
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka
+
+  #======================================KAFKA CONFIGURATION======================================================
 
   #CONFIGURACION DE KAFKA
   zookeeper:
@@ -127,20 +156,10 @@ services:
     depends_on:
       - zookeeper
 
-  kafdrop:
-    image: obsidiandynamics/kafdrop
-    container_name: kafdrop
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: kafka:29092
-      JVM_OPTS: "-Xms32M -Xmx64M"
-    depends_on:
-      - kafka
-
 #VOLUMES
 volumes:
-  postgres_data:
+  postgres_user_data:
+  postgres_product_data:
   mongo_event_data:
   mongo_notification_data:
   mongo_cart_data:
