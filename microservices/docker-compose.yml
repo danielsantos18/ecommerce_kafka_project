@@ -1,0 +1,147 @@
+services:
+  #BD PARA USERS POSTGRES
+  db-users:
+    container_name: db-users
+    image: postgres:15.2
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    command: -p 5432
+
+  #BD PARA PRODUCTS POSTRGRES
+  db-products:
+    container_name: db-products
+    image: postgres:15.2
+    environment:
+      POSTGRES_DB: products
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5433:5433
+    expose:
+      - 5433
+    command: -p 5433
+
+  #BD PARA TRAZABILIDAD DE EVENTOS MONGO
+  mongo-event:
+    image: mongo:6
+    container_name: mongo-event
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_event_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: events
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  # MongoDB para notification-service
+  mongo-notification:
+    image: mongo:6
+    container_name: mongo-notification
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_notification_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: notifications
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  # MongoDB para cart-service
+  mongo-cart:
+    image: mongo:6
+    container_name: mongo-cart
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo_cart_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: carts
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  # MongoDB para order-service
+  mongo-order:
+    image: mongo:6
+    container_name: mongo-order
+    ports:
+      - "27020:27017"
+    volumes:
+      - mongo_order_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: orders
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+
+  # Mongo Express (Interfaz web)
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8085:8081"  # Mongo Express usa el puerto 8081 por defecto
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo-event
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root    # Usuario root de MongoDB
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root # Contraseña de root
+      ME_CONFIG_BASICAUTH_USERNAME: admin  # Usuario para Mongo Express
+      ME_CONFIG_BASICAUTH_PASSWORD: admin  # Contraseña para Mongo Express
+    depends_on:
+      - mongo-event
+
+  #===================================================================================================
+
+  #CONFIGURACION DE KAFKA
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_HOST
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka
+
+#VOLUMES
+volumes:
+  postgres_data:
+  mongo_event_data:
+  mongo_notification_data:
+  mongo_cart_data:
+  mongo_order_data:
