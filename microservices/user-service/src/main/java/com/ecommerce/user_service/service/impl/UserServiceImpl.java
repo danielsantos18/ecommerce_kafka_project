@@ -39,8 +39,7 @@ public class UserServiceImpl implements IUserService {
         kafkaProducer.sendUserRegisteredEvent(
                 new UserRegisteredEvent(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail(), saved.getPassword())
         );
-
-        return new UserResponse(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail(), saved.getPassword());
+        return mapToUserResponse(saved);
     }
 
     @Override
