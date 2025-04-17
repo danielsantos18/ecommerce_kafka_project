@@ -15,7 +15,8 @@ public class Notification {
     @Id
     private String id;
     private Long userId;
-    private String userEmail;
+    private String Email;
+    private String subject;
     private String message;
     private LocalDateTime sentAt;
 }

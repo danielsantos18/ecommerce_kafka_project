@@ -8,7 +8,7 @@ import com.ecommerce.user_service.model.User;
 import com.ecommerce.user_service.model.exception.UserNotFoundException;
 import com.ecommerce.user_service.repo.IUserRepo;
 import com.ecommerce.user_service.service.IUserService;
-import com.ecommerce.user_service.util.Producer;
+import com.ecommerce.user_service.event.producer.UserProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements IUserService {
 
     private final IUserRepo userRepository;
-    private final Producer kafkaProducer;
+    private final UserProducer kafkaUserProducer;
 
     @Override
     public UserResponse registerUser(UserRequest request) {
@@ -36,7 +36,7 @@ public class UserServiceImpl implements IUserService {
         User saved = userRepository.save(user);
 
         // Emitir evento a Kafka
-        kafkaProducer.sendUserRegisteredEvent(
+        kafkaUserProducer.sendUserRegisteredEvent(
                 new UserRegisteredEvent(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail(), saved.getPassword())
         );
 
@@ -95,7 +95,7 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
         userRepository.delete(user);
-        kafkaProducer.sendUserDeletedEvent(
+        kafkaUserProducer.sendUserDeletedEvent(
                 new UserDeletedEvent(user.getId())
         );
     }
