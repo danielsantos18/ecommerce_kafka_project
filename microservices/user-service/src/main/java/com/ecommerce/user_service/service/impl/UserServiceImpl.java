@@ -5,11 +5,13 @@ import com.ecommerce.user_service.dto.UserResponse;
 import com.ecommerce.user_service.event.UserDeletedEvent;
 import com.ecommerce.user_service.event.UserRegisteredEvent;
 import com.ecommerce.user_service.model.User;
+import com.ecommerce.user_service.model.exception.EmailAlreadyExistsException;
 import com.ecommerce.user_service.model.exception.UserNotFoundException;
 import com.ecommerce.user_service.repo.IUserRepo;
 import com.ecommerce.user_service.service.IUserService;
 import com.ecommerce.user_service.event.producer.UserProducer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,25 +24,31 @@ public class UserServiceImpl implements IUserService {
 
     private final IUserRepo userRepository;
     private final UserProducer kafkaUserProducer;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse registerUser(UserRequest request) {
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Error: El correo electrónico ya está en uso");
+        }
+
         User user = User.builder()
                 .name(request.getName())
                 .lastname(request.getLastname())
                 .phone(request.getPhone())
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         User saved = userRepository.save(user);
 
         // Emitir evento a Kafka
         kafkaUserProducer.sendUserRegisteredEvent(
-                new UserRegisteredEvent(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail(), saved.getPassword())
+                new UserRegisteredEvent(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail())
         );
 
-        return new UserResponse(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail(), saved.getPassword());
+        return new UserResponse(saved.getId(), saved.getName(), saved.getLastname(), saved.getPhone(), saved.getEmail());
     }
 
     @Override
@@ -107,7 +115,7 @@ public class UserServiceImpl implements IUserService {
                 .lastname(user.getLastname())
                 .phone(user.getPhone())
                 .email(user.getEmail())
-                .password(user.getPassword())
+                //.password(user.getPassword())
                 .build();
     }
 }
