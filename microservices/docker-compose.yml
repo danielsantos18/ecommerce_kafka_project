@@ -32,6 +32,22 @@ services:
       - 5432
     command: -p 5432
 
+    #BD PARA PRODUCTS POSTRGRES
+  db-cart:
+    container_name: db-carts
+    image: postgres:15.2
+    environment:
+      POSTGRES_DB: carts
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_cart_data:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+    expose:
+      - 5432
+    command: -p 5432
+
   #=============================================BDS MONGO============================================
   #BD PARA TRAZABILIDAD DE EVENTOS MONGO
   mongo-event:
@@ -160,6 +176,7 @@ services:
 volumes:
   postgres_user_data:
   postgres_product_data:
+  postgres_cart_data:
   mongo_event_data:
   mongo_notification_data:
   mongo_cart_data:
