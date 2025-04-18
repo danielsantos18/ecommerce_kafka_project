@@ -23,7 +23,7 @@ public class CartItemController {
 
     // Nuevo: obtener los ítems de un usuario
     @GetMapping("/user/{userId}")
-    public List<Cart> getCartByUser(@PathVariable String userId) {
+    public List<Cart> getCartByUser(@PathVariable Long userId) {
         return cartItemRepository.findByUserId(userId);
     }
 
@@ -38,7 +38,7 @@ public class CartItemController {
     }
 
     @DeleteMapping("/user/{userId}")
-    public ResponseEntity<String> deleteCartByUser(@PathVariable String userId) {
+    public ResponseEntity<String> deleteCartByUser(@PathVariable Long userId) {
         List<Cart> items = cartItemRepository.findByUserId(userId);
         if (items.isEmpty()) {
             return ResponseEntity.notFound().build();

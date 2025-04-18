@@ -32,7 +32,7 @@ services:
       - 5432
     command: -p 5432
 
-    #BD PARA PRODUCTS POSTRGRES
+    #BD PARA CARTS POSTRGRES
   db-cart:
     container_name: db-carts
     image: postgres:15.2

@@ -18,7 +18,7 @@ public class EventConsumer {
 
     private final IEventLogRepo eventRepository;
 
-    @KafkaListener(topics = {"user-registered-topic", "welcome-flow-topic", "notification-topic"}, groupId = "event-group")
+    @KafkaListener(topics = {"user-registered-topic", "cart-updates", "welcome-flow-topic", "notification-topic"}, groupId = "event-group")
     public void consumeEvent(EventDTO event) {
 
         log.info("🎯 Incoming event: {}", event);

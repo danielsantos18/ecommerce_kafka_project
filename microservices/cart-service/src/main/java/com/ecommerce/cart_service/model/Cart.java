@@ -19,7 +19,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String userId; // ID del usuario (no usamos tabla de usuarios aquí)
+    private Long userId; // ID del usuario (no usamos tabla de usuarios aquí)
     private String productId; // ID del producto
     private int quantity; // Cantidad del producto
 }
