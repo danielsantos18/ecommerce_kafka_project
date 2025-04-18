@@ -32,16 +32,13 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponseUtil<ProductResponse>> saveProduct(
-            @RequestBody @Validated ProductRequest request) {
+    public ResponseEntity<ApiResponseUtil<ProductResponse>> saveProduct(@RequestBody @Validated ProductRequest request) {
         ProductResponse saved = productService.saveProduct(request);
         return ResponseEntity.ok(new ApiResponseUtil<>(true, "Producto guardado correctamente", saved));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponseUtil<ProductResponse>> updateProduct(
-            @PathVariable Long id,
-            @RequestBody @Validated ProductRequest request) {
+    public ResponseEntity<ApiResponseUtil<ProductResponse>> updateProduct(@PathVariable Long id, @RequestBody @Validated ProductRequest request) {
         ProductResponse updated = productService.updateProduct(id, request);
         return ResponseEntity.ok(new ApiResponseUtil<>(true, "Producto actualizado correctamente", updated));
     }
@@ -51,5 +48,4 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.ok(new ApiResponseUtil<>(true, "Producto eliminado correctamente", null));
     }
-
 }

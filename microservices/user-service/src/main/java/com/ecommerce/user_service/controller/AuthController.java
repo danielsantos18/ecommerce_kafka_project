@@ -8,13 +8,13 @@ import com.ecommerce.user_service.repo.IUserRepo;
 import com.ecommerce.user_service.service.IUserService;
 import com.ecommerce.user_service.util.ApiResponseUtil;
 import com.ecommerce.user_service.util.JwtUtil;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +33,7 @@ public class AuthController {
     private final IUserRepo userRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponseUtil<UserResponse>> register(@RequestBody @Valid UserRequest userRequest) {
+    public ResponseEntity<ApiResponseUtil<UserResponse>> register(@RequestBody @Validated UserRequest userRequest) {
         UserResponse response = userService.registerUser(userRequest);
         ApiResponseUtil<UserResponse> apiResponse = new ApiResponseUtil<>(true, "Usuario creado con exito!", response);
         return ResponseEntity.ok(apiResponse);

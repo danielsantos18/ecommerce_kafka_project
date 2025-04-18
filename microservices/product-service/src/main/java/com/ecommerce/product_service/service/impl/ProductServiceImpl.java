@@ -2,11 +2,12 @@ package com.ecommerce.product_service.service.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.ecommerce.product_service.model.exception.ProductNotFoundException;
 import org.springframework.stereotype.Service;
 import com.ecommerce.product_service.dto.ProductRequest;
 import com.ecommerce.product_service.dto.ProductResponse;
 import com.ecommerce.product_service.model.Product;
-import com.ecommerce.product_service.model.exception.ProducNotFoundException;
 import com.ecommerce.product_service.repo.IProductRepo;
 import com.ecommerce.product_service.service.IProductService;
 
@@ -29,7 +30,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ProductResponse getProductById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new ProducNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ProductNotFoundException("User not found with id: " + id));
         return mapToProductResponse(product);
     }
 

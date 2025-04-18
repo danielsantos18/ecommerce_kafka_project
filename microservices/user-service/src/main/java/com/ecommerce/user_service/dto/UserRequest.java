@@ -33,6 +33,6 @@ public class UserRequest {
     private String email;
 
     @NotNull
-    @Size(min = 8, message = "lel password debe tener al menos 8 caracteres")
+    @Size(min = 8, message = "la password debe tener al menos 8 caracteres")
     private String password;
 }

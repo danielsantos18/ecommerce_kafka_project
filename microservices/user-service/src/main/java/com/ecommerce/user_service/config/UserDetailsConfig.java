@@ -25,7 +25,7 @@ public class UserDetailsConfig implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                List.of() // Si tienes roles, puedes agregarlos aquí
+                List.of()
         );
     }
 }

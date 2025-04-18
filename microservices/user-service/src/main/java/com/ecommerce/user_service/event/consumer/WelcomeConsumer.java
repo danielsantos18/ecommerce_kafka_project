@@ -31,7 +31,7 @@ public class WelcomeConsumer {
         String email = payload.get("email").toString();
 
         // Crear el contenido del evento de bienvenida
-        String subject = "¡Bienvenido a nuestra plataforma!";
+        String subject = "¡Registro exitoso!";
         String content = "Hola " + name + ", gracias por registrarte en nuestra plataforma!.";
 
         Map<String, Object> welcomePayload = Map.of(
